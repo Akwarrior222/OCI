@@ -1,0 +1,48 @@
+pipeline {
+    agent any
+ 
+    environment {
+        // Define your environment variables here
+        OCI_USER = 'opc'
+        OCI_HOST = '141.148.209.217'
+        DEPLOY_PATH = '/var/www/html'
+    }
+ 
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout your code from the Git repository
+                checkout scm
+            }
+        }
+ 
+        stage('Build') {
+            steps {
+                // Add commands to build your project here
+                echo 'Building project...'
+                // For example: sh 'mvn clean install'
+            }
+        }
+ 
+        stage('Deploy') {
+            steps {
+                echo 'Deploying to OCI Compute Instance...'
+                // Replace with your actual deployment script or commands
+                // For example, using SCP to copy files to your OCI instance
+                sh "scp -r ./dist/* ${OCI_USER}@${OCI_HOST}:${DEPLOY_PATH}"
+                // If you have additional commands to run on the OCI instance after transferring files, you can use SSH
+                // For example:
+                // sh "ssh ${OCI_USER}@${OCI_HOST} 'cd ${DEPLOY_PATH} && ./deploy-script.sh'"
+            }
+        }
+    }
+ 
+    post {
+        success {
+            echo 'Deployment completed successfully.'
+        }
+        failure {
+            echo 'Deployment failed.'
+        }
+    }
+}
